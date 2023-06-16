@@ -10,15 +10,20 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.text.Text;
 
 public class AutoDisconnectClient implements ClientModInitializer {
-    Boolean toggle = true;
-    Double healthToLeave = 4.0;
-    Boolean gotDisconnected = false;
-    Integer cooldown = 15;
+    boolean toggle = true;
+    double healthToLeave = 4.0;
+    double healthWhenDisconnected = 0.0;
+    int cooldownInSeconds = 15;
+    int cooldown = cooldownInSeconds * 20;
 
     @Override
     public void onInitializeClient() {
+        Commands();
+        Disconnect();
+    }
 
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+    public void Commands() {
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             dispatcher.register(ClientCommandManager.literal("autodisconnect")
                 .then(ClientCommandManager.literal("toggle").executes(context -> {
                     toggle = !toggle;
@@ -34,14 +39,14 @@ public class AutoDisconnectClient implements ClientModInitializer {
                 )
                 .then(ClientCommandManager.literal("cooldown")
                     .then(ClientCommandManager.argument("cooldown", IntegerArgumentType.integer(1, 60)).executes(context -> {
-                        cooldown = IntegerArgumentType.getInteger(context, "cooldown");
-                        context.getSource().sendFeedback(Text.of("AutoDisconnect Cooldown changed to " + cooldown + " seconds"));
+                        cooldownInSeconds = IntegerArgumentType.getInteger(context, "cooldown");
+                        context.getSource().sendFeedback(Text.of("AutoDisconnect Cooldown changed to " + cooldownInSeconds + " seconds"));
                         return 1;
                     })))
                 .then(ClientCommandManager.literal("status").executes(context -> {
                     context.getSource().sendFeedback(Text.of("AutoDisconnect is " + (toggle ? "Enabled" : "Disabled")));
                     context.getSource().sendFeedback(Text.of("AutoDisconnect Health is " + healthToLeave));
-                    context.getSource().sendFeedback(Text.of("AutoDisconnect Cooldown is " + cooldown + " seconds"));
+                    context.getSource().sendFeedback(Text.of("AutoDisconnect Cooldown is " + cooldownInSeconds + " seconds"));
                     return 1;
                 }))
                 .then(ClientCommandManager.literal("help").executes(context -> {
@@ -54,20 +59,29 @@ public class AutoDisconnectClient implements ClientModInitializer {
                 }))
             );
         });
+    }
 
+    public void Disconnect() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.world == null) {
+            if (client.world == null || client.player == null) {
                 return;
             }
-            if (client.player != null) {
-                float health = client.player.getHealth();
-                if (health <= healthToLeave && client.player.isAlive() && !gotDisconnected && toggle) {
-                    gotDisconnected = true;
+            double health = client.player.getHealth();
+            if (healthWhenDisconnected > 0 && health == 20) {
+                return;
+            }
+            if (health > healthToLeave) {
+                cooldown = 0;
+                healthWhenDisconnected = 0;
+            } else if (health <= healthToLeave && client.player.isAlive() && toggle) {
+                if (cooldown > 0) {
+                    cooldown--;
+                } else {
+                    healthWhenDisconnected = health;
+                    cooldown = cooldownInSeconds * 20;
                     client.player.world.disconnect();
                 }
             }
         });
-    
     }
-
 }
