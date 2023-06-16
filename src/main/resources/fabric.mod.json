@@ -4,7 +4,7 @@
   "version": "${version}",
 
   "name": "AutoDisconnect",
-  "description": "A simple mod that automatically disconnects players when they are on low health.",
+  "description": "A simple mod that automatically disconnects players when they are in low health.",
   "authors": [
     "pdt1806"
   ],
