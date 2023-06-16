@@ -6,7 +6,7 @@
   "mixins": [
   ],
   "client": [
-    "autodisconnectMixin"
+    "AutoDisconnectMixin"
   ],
   "injectors": {
     "defaultRequire": 1

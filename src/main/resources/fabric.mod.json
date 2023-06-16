@@ -4,7 +4,7 @@
   "version": "${version}",
 
   "name": "Auto Disconnect",
-  "description": "A mod that automatically disconnects players when they are on low health. Fabric only.",
+  "description": "A simple mod that automatically disconnects players when they are on low health. Fabric only.",
   "authors": [
     "Me!"
   ],
@@ -18,11 +18,8 @@
 
   "environment": "*",
   "entrypoints": {
-    "main": [
-      "net.pdteggman.autodisconnect.autodisconnect"
-    ],
     "client": [
-      "net.pdteggman.autodisconnect.autodisconnectClient"
+      "net.pdteggman.autodisconnect.AutoDisconnectClient"
     ]
   },
   "mixins": [
