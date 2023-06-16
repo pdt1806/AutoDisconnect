@@ -1,6 +1,5 @@
 package net.pdteggman.autodisconnect;
 
-import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 
 import net.fabricmc.api.ClientModInitializer;
@@ -11,8 +10,8 @@ import net.minecraft.text.Text;
 
 public class AutoDisconnectClient implements ClientModInitializer {
     boolean toggle = true;
-    double healthToLeave = 4.0;
-    double healthWhenDisconnected = 0.0;
+    int healthToLeave = 8;
+    int healthWhenDisconnected = 0;
     int cooldownInSeconds = 15;
     int cooldown = cooldownInSeconds * 20;
 
@@ -31,8 +30,8 @@ public class AutoDisconnectClient implements ClientModInitializer {
                     return 1;
                 }))
                 .then(ClientCommandManager.literal("health")
-                    .then(ClientCommandManager.argument("health", DoubleArgumentType.doubleArg(1, 19)).executes(context -> {
-                        healthToLeave = DoubleArgumentType.getDouble(context, "health");
+                    .then(ClientCommandManager.argument("health", IntegerArgumentType.integer(1, 19)).executes(context -> {
+                        healthToLeave = IntegerArgumentType.getInteger(context, "health");
                         context.getSource().sendFeedback(Text.of("AutoDisconnect Health changed to " + healthToLeave));
                         return 1;
                     }))
@@ -66,7 +65,7 @@ public class AutoDisconnectClient implements ClientModInitializer {
             if (client.world == null || client.player == null) {
                 return;
             }
-            double health = client.player.getHealth();
+            int health = (int) client.player.getHealth();
             if (healthWhenDisconnected > 0 && health == 20) {
                 return;
             }
