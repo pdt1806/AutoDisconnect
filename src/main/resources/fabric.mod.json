@@ -3,17 +3,17 @@
   "id": "autodisconnect",
   "version": "${version}",
 
-  "name": "Auto Disconnect",
-  "description": "A simple mod that automatically disconnects players when they are on low health. Fabric only.",
+  "name": "AutoDisconnect",
+  "description": "A simple mod that automatically disconnects players when they are on low health.",
   "authors": [
-    "Me!"
+    "pdt1806"
   ],
   "contact": {
     "homepage": "https://pdt1806.github.io/",
     "sources": "https://github.com/pdt1806/AutoDisconnect"
   },
 
-  "license": "CC0-1.0",
+  "license": "CC BY-NC-SA 4.0",
   "icon": "assets/autodisconnect_logo.png",
 
   "environment": "*",
