@@ -74,12 +74,12 @@ public class AutoDisconnectClient implements ClientModInitializer {
                 cooldown = 0;
                 healthWhenDisconnected = 0;
             } else if (health <= healthToLeave && client.player.isAlive() && toggle) {
-                if (cooldown > 0) {
-                    cooldown--;
-                } else {
+                if (cooldown == 0 || (healthWhenDisconnected > 0 && health < healthWhenDisconnected)) {
                     healthWhenDisconnected = health;
                     cooldown = cooldownInSeconds * 20;
-                    client.player.world.disconnect();
+                    client.player.world.disconnect();               
+                } else {
+                    cooldown--;
                 }
             }
         });
