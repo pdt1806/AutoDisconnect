@@ -1,7 +1,11 @@
 package net.pdteggman.autodisconnect;
 
-import com.mojang.brigadier.arguments.IntegerArgumentType;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -11,41 +15,86 @@ import net.minecraft.text.Text;
 public class AutoDisconnectClient implements ClientModInitializer {
     boolean toggle = true;
     int healthToLeave = 8;
-    int healthWhenDisconnected = 0;
     int cooldownInSeconds = 15;
+    int healthWhenDisconnected = 0;
     int cooldown = cooldownInSeconds * 20;
+
+    File configFile = new File("autodisconnect/settings.txt");
 
     @Override
     public void onInitializeClient() {
-        Commands();
-        Disconnect();
+        createConfigFileIfNotExists();
+
+        try {
+            Scanner scanner = new Scanner(configFile);
+            toggle = scanner.nextBoolean();
+            healthToLeave = scanner.nextInt();
+            cooldownInSeconds = scanner.nextInt();
+            scanner.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        registerCommands();
+        registerDisconnectEvent();
     }
 
-    public void Commands() {
+    private void createConfigFileIfNotExists() {
+        if (!configFile.exists()) {
+            try {
+                configFile.getParentFile().mkdirs();
+                configFile.createNewFile();
+                writeFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void writeFile() {
+        try (FileWriter writer = new FileWriter(configFile)) {
+            writer.write("%s %s %s".formatted(toggle, healthToLeave, cooldownInSeconds));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void registerCommands() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             dispatcher.register(ClientCommandManager.literal("autodisconnect")
                 .then(ClientCommandManager.literal("toggle").executes(context -> {
                     toggle = !toggle;
                     context.getSource().sendFeedback(Text.of((toggle ? "Enabled" : "Disabled") + " AutoDisconnect!"));
+                    writeFile();
                     return 1;
                 }))
                 .then(ClientCommandManager.literal("health")
                     .then(ClientCommandManager.argument("health", IntegerArgumentType.integer(1, 19)).executes(context -> {
                         healthToLeave = IntegerArgumentType.getInteger(context, "health");
                         context.getSource().sendFeedback(Text.of("AutoDisconnect Health changed to " + healthToLeave));
+                        writeFile();
                         return 1;
                     }))
                 )
                 .then(ClientCommandManager.literal("cooldown")
                     .then(ClientCommandManager.argument("cooldown", IntegerArgumentType.integer(1, 60)).executes(context -> {
                         cooldownInSeconds = IntegerArgumentType.getInteger(context, "cooldown");
-                        context.getSource().sendFeedback(Text.of("AutoDisconnect Cooldown changed to " + cooldownInSeconds + " seconds"));
+                        context.getSource().sendFeedback(Text.of("AutoDisconnect Cooldown changed to " + cooldownInSeconds + " second" + (cooldownInSeconds == 1 ? "" : "s")));
+                        writeFile();
                         return 1;
                     })))
                 .then(ClientCommandManager.literal("status").executes(context -> {
                     context.getSource().sendFeedback(Text.of("AutoDisconnect is " + (toggle ? "Enabled" : "Disabled")));
                     context.getSource().sendFeedback(Text.of("AutoDisconnect Health is " + healthToLeave));
-                    context.getSource().sendFeedback(Text.of("AutoDisconnect Cooldown is " + cooldownInSeconds + " seconds"));
+                    context.getSource().sendFeedback(Text.of("AutoDisconnect Cooldown is " + cooldownInSeconds + " second" + (cooldownInSeconds == 1 ? "" : "s")));
+                    return 1;
+                }))
+                .then(ClientCommandManager.literal("default").executes(context -> {
+                    toggle = true;
+                    healthToLeave = 8;
+                    cooldownInSeconds = 15;
+                    context.getSource().sendFeedback(Text.of("AutoDisconnect settings reset to default!"));
+                    writeFile();
                     return 1;
                 }))
                 .then(ClientCommandManager.literal("help").executes(context -> {
@@ -60,19 +109,21 @@ public class AutoDisconnectClient implements ClientModInitializer {
         });
     }
 
-    public void Disconnect() {
+    private void registerDisconnectEvent() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.world == null || client.player == null) {
+            if (client.world == null || client.player == null || client.player.isCreative() || client.player.isSpectator() || !toggle) {
                 return;
             }
+
             int health = (int) client.player.getHealth();
             if (healthWhenDisconnected > 0 && health == 20) {
                 return;
             }
+
             if (health > healthToLeave) {
                 cooldown = 0;
                 healthWhenDisconnected = 0;
-            } else if (health <= healthToLeave && client.player.isAlive() && toggle) {
+            } else if (health <= healthToLeave && client.player.isAlive()) {
                 if (cooldown == 0 || (healthWhenDisconnected > 0 && health < healthWhenDisconnected)) {
                     healthWhenDisconnected = health;
                     cooldown = cooldownInSeconds * 20;
