@@ -19,7 +19,10 @@ public class AutoDisconnectClient implements ClientModInitializer {
     int healthWhenDisconnected = 0;
     int cooldown = cooldownInSeconds * 20;
 
-    File configFile = new File("autodisconnect/settings.txt");
+    File jarFile = new File(AutoDisconnectClient.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+    File parentFolder = jarFile.getParentFile().getParentFile();
+    String folderPath = parentFolder.getAbsolutePath();
+    File configFile = new File("autodisconnect/config.txt");
 
     @Override
     public void onInitializeClient() {
