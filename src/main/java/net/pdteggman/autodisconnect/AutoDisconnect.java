@@ -12,14 +12,14 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.text.Text;
 
-public class AutoDisconnectClient implements ClientModInitializer {
+public class AutoDisconnect implements ClientModInitializer {
     boolean toggle = true;
     int healthToLeave = 8;
     int cooldownInSeconds = 15;
     int healthWhenDisconnected = 0;
     int cooldown = cooldownInSeconds * 20;
 
-    File jarFile = new File(AutoDisconnectClient.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+    File jarFile = new File(AutoDisconnect.class.getProtectionDomain().getCodeSource().getLocation().getPath());
     File parentFolder = jarFile.getParentFile().getParentFile();
     String folderPath = parentFolder.getAbsolutePath();
     File configFile = new File("autodisconnect/config.txt");

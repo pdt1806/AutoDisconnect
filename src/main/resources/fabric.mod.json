@@ -18,12 +18,9 @@
   "environment": "*",
   "entrypoints": {
     "client": [
-      "net.pdteggman.autodisconnect.AutoDisconnectClient"
+      "net.pdteggman.autodisconnect.AutoDisconnect"
     ]
   },
-  "mixins": [
-    "autodisconnect.mixins.json"
-  ],
 
   "depends": {
     "fabricloader": ">=0.14.19",
