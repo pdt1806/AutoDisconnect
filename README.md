@@ -2,7 +2,7 @@
 
 A simple Minecraft mod that automatically disconnects players when they are in low health.
 
-Inspired by personal experiences and the fact that there is no similar mod that can be found since it is... obviously a hack.
+Inspired by personal experiences and the fact that no similar mod can be found since it is... obviously a hack.
 
 If you want to keep the spirit of the game, it is better not to use this mod (especially when playing with your friends).
 
@@ -12,9 +12,11 @@ If you want to keep the spirit of the game, it is better not to use this mod (es
 
 ![](https://media3.giphy.com/media/LuBuqlVzy6QxqjqdKR/giphy.gif)
 
-## Author
+## Contributors
 
-- [@pdt1806](https://www.github.com/pdt1806) (me, the one and only)
+- [pdt1806](https://www.github.com/pdt1806)
+- [tobycm](https://www.github.com/tobycm)
+
 
 ## Contributing
 
