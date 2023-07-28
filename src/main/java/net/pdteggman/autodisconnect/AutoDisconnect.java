@@ -2,6 +2,8 @@ package net.pdteggman.autodisconnect;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -12,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
+@Environment(EnvType.CLIENT)
 public class AutoDisconnect implements ClientModInitializer {
     boolean toggle = true;
     int healthToLeave = 8;
