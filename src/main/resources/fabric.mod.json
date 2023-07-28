@@ -2,30 +2,28 @@
   "schemaVersion": 1,
   "id": "autodisconnect",
   "version": "${version}",
-
   "name": "AutoDisconnect",
   "description": "A simple mod that automatically disconnects players when they are in low health.",
   "authors": [
     "pdt1806"
   ],
   "contact": {
-    "sources": "https://github.com/pdt1806/AutoDisconnect"
+    "homepage": "https://github.com/pdt1806/AutoDisconnect/",
+    "issues": "https://github.com/pdt1806/AutoDisconnect/issues",
+    "sources": "https://github.com/pdt1806/AutoDisconnect/"
   },
-
   "license": "CC BY-NC-SA 4.0",
   "icon": "assets/autodisconnect_logo.png",
-
   "environment": "*",
   "entrypoints": {
     "client": [
       "net.pdteggman.autodisconnect.AutoDisconnect"
     ]
   },
-
   "depends": {
-    "fabricloader": ">=0.14.19",
+    "fabricloader": ">=0.14.21",
     "fabric-api": "*",
-    "minecraft": "~1.19.4",
+    "minecraft": "~1.20.1",
     "java": ">=17"
   }
 }
