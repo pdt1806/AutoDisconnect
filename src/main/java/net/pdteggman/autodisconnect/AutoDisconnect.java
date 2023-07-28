@@ -130,7 +130,7 @@ public class AutoDisconnect implements ClientModInitializer {
                 if (cooldown == 0 || (healthWhenDisconnected > 0 && health < healthWhenDisconnected)) {
                     healthWhenDisconnected = health;
                     cooldown = cooldownInSeconds * 20;
-                    client.player.world.disconnect();               
+                    client.world.disconnect();
                 } else {
                     cooldown--;
                 }
