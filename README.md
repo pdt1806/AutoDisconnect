@@ -12,12 +12,6 @@ If you want to keep the spirit of the game, it is better not to use this mod (es
 
 ![](https://media3.giphy.com/media/LuBuqlVzy6QxqjqdKR/giphy.gif)
 
-## Contributors
-
-- [pdt1806](https://www.github.com/pdt1806)
-- [tobycm](https://www.github.com/tobycm)
-
-
 ## Contributing
 
 Feel free to contribute and I will review it ASAP.
