@@ -1,4 +1,6 @@
-# AutoDisconnect - 1.19 - Fabric
+<img src="https://raw.githubusercontent.com/pdt1806/AutoDisconnect/1.20/src/main/resources/assets/autodisconnect_logo.png" width="250" height="250" style="border-radius: 15px"></img>
+
+# AutoDisconnect - Fabric - 1.20.4
 
 A simple Minecraft mod that automatically disconnects players when they are in low health.
 
