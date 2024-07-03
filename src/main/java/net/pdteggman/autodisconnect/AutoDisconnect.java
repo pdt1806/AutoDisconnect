@@ -1,5 +1,10 @@
 package net.pdteggman.autodisconnect;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 
 import net.fabricmc.api.ClientModInitializer;
@@ -10,13 +15,9 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.text.Text;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Scanner;
-
 @Environment(EnvType.CLIENT)
 public class AutoDisconnect implements ClientModInitializer {
+
     boolean toggle = true;
     int healthToLeave = 8;
     int cooldownInSeconds = 15;
@@ -44,8 +45,9 @@ public class AutoDisconnect implements ClientModInitializer {
     }
 
     private void createConfigFileIfNotExists() {
-        if (configFile.exists())
+        if (configFile.exists()) {
             return;
+        }
 
         try {
             configFile.getParentFile().mkdirs();
@@ -107,25 +109,27 @@ public class AutoDisconnect implements ClientModInitializer {
                                         + " second" + (cooldownInSeconds == 1 ? "" : "s")));
                         return 1;
                     })).then(ClientCommandManager.literal("default").executes(context -> {
-                        toggle = true;
-                        healthToLeave = 8;
-                        cooldownInSeconds = 15;
-                        context.getSource()
-                                .sendFeedback(Text.of("AutoDisconnect settings reset to default!"));
-                        writeFile();
-                        return 1;
-                    })).then(ClientCommandManager.literal("help").executes(context -> {
-                        context.getSource().sendFeedback(Text.of("AutoDisconnect Commands:"));
-                        context.getSource().sendFeedback(
-                                Text.of("/autodisconnect toggle - Toggles AutoDisconnect"));
-                        context.getSource().sendFeedback(Text.of(
-                                "/autodisconnect health <health> - Sets the health to disconnect at (1-19)"));
-                        context.getSource().sendFeedback(Text.of(
-                                "/autodisconnect cooldown <cooldown> - Sets the cooldown (in seconds) after reconnecting to disconnect again (1-60)"));
-                        context.getSource().sendFeedback(Text.of(
-                                "/autodisconnect settings - Shows the current settings of AutoDisconnect"));
-                        return 1;
-                    })));
+                toggle = true;
+                healthToLeave = 8;
+                cooldownInSeconds = 15;
+                context.getSource()
+                        .sendFeedback(Text.of("AutoDisconnect settings reset to default!"));
+                writeFile();
+                return 1;
+            })).then(ClientCommandManager.literal("help").executes(context -> {
+                context.getSource().sendFeedback(Text.of("AutoDisconnect Commands:"));
+                context.getSource().sendFeedback(Text.of(
+                        "/autodisconnect cooldown <cooldown> - Sets the cooldown (in seconds) after reconnecting to disconnect again (1-60)"));
+                context.getSource().sendFeedback(
+                        Text.of("/autodisconnect default - Resets AutoDisconnect settings to default"));
+                context.getSource().sendFeedback(Text.of(
+                        "/autodisconnect health <health> - Sets the health to disconnect at (1-19)"));
+                context.getSource().sendFeedback(Text.of(
+                        "/autodisconnect status - Shows the current status and settings of AutoDisconnect"));
+                context.getSource().sendFeedback(
+                        Text.of("/autodisconnect toggle - Toggles AutoDisconnect"));
+                return 1;
+            })));
         });
     }
 
