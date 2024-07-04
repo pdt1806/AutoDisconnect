@@ -13,6 +13,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.network.DisconnectionInfo;
 import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
@@ -61,8 +62,8 @@ public class AutoDisconnect implements ClientModInitializer {
     private void writeFile() {
         try (FileWriter writer = new FileWriter(configFile)) {
             writer.write("%s %s %s".formatted(toggle, healthToLeave, cooldownInSeconds));
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -109,27 +110,27 @@ public class AutoDisconnect implements ClientModInitializer {
                                         + " second" + (cooldownInSeconds == 1 ? "" : "s")));
                         return 1;
                     })).then(ClientCommandManager.literal("default").executes(context -> {
-                toggle = true;
-                healthToLeave = 8;
-                cooldownInSeconds = 15;
-                context.getSource()
-                        .sendFeedback(Text.of("AutoDisconnect settings reset to default!"));
-                writeFile();
-                return 1;
-            })).then(ClientCommandManager.literal("help").executes(context -> {
-                context.getSource().sendFeedback(Text.of("AutoDisconnect Commands:"));
-                context.getSource().sendFeedback(Text.of(
-                        "/autodisconnect cooldown <cooldown> - Sets the cooldown (in seconds) after reconnecting to disconnect again (1-60)"));
-                context.getSource().sendFeedback(
-                        Text.of("/autodisconnect default - Resets AutoDisconnect settings to default"));
-                context.getSource().sendFeedback(Text.of(
-                        "/autodisconnect health <health> - Sets the health to disconnect at (1-19)"));
-                context.getSource().sendFeedback(Text.of(
-                        "/autodisconnect status - Shows the current status and settings of AutoDisconnect"));
-                context.getSource().sendFeedback(
-                        Text.of("/autodisconnect toggle - Toggles AutoDisconnect"));
-                return 1;
-            })));
+                        toggle = true;
+                        healthToLeave = 8;
+                        cooldownInSeconds = 15;
+                        context.getSource()
+                                .sendFeedback(Text.of("AutoDisconnect settings reset to default!"));
+                        writeFile();
+                        return 1;
+                    })).then(ClientCommandManager.literal("help").executes(context -> {
+                        context.getSource().sendFeedback(Text.of("AutoDisconnect Commands:"));
+                        context.getSource().sendFeedback(Text.of(
+                                "/autodisconnect cooldown <cooldown> - Sets the cooldown (in seconds) after reconnecting to disconnect again (1-60)"));
+                        context.getSource().sendFeedback(
+                                Text.of("/autodisconnect default - Resets AutoDisconnect settings to default"));
+                        context.getSource().sendFeedback(Text.of(
+                                "/autodisconnect health <health> - Sets the health to disconnect at (1-19)"));
+                        context.getSource().sendFeedback(Text.of(
+                                "/autodisconnect status - Shows the current status and settings of AutoDisconnect"));
+                        context.getSource().sendFeedback(
+                                Text.of("/autodisconnect toggle - Toggles AutoDisconnect"));
+                        return 1;
+                    })));
         });
     }
 
@@ -153,7 +154,13 @@ public class AutoDisconnect implements ClientModInitializer {
                         || (healthWhenDisconnected > 0 && health < healthWhenDisconnected)) {
                     healthWhenDisconnected = health;
                     cooldown = cooldownInSeconds * 20;
+
                     client.player.getWorld().disconnect();
+                    client.player.networkHandler
+                            .onDisconnected(new DisconnectionInfo(Text.of(
+                                    "Disconnected by AutoDisconnect\n\nHealth when disconnected: %s\nCooldown (in seconds): %s"
+                                            .formatted(healthWhenDisconnected, cooldownInSeconds))));
+
                 } else {
                     cooldown--;
                 }
