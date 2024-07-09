@@ -10,9 +10,9 @@ If you want to keep the spirit of the game, it is better not to use this mod (es
 
 ## Preview
 
-![](https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdjAzanNxbDB0M2owNnBndG1hNXh5MjJmY2t1eHlqZWZiMHZlOWZzeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/tmGWPlrptKzebhSGz4/giphy.gif)
+![](https://raw.githubusercontent.com/pdt1806/AutoDisconnect/1.21/src/main/resources/assets/autodisconnect-pov-0.gif)
 
-![](https://media3.giphy.com/media/LuBuqlVzy6QxqjqdKR/giphy.gif)
+![](https://raw.githubusercontent.com/pdt1806/AutoDisconnect/1.21/src/main/resources/assets/autodisconnect-pov-1.gif)
 
 ## Download
 
