@@ -13,7 +13,10 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.network.DisconnectionInfo;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.DisconnectedScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
@@ -134,15 +137,47 @@ public class AutoDisconnect implements ClientModInitializer {
         });
     }
 
+    private boolean shouldSkip(MinecraftClient client) {
+        if (client == null)
+            return true;
+        if (client.world == null || client.player == null)
+            return true;
+        return client.player.isCreative()
+                || client.player.isSpectator() || !toggle;
+    }
+
+    private boolean shouldDisconnect(int health) {
+        return cooldown == 0
+                || (healthWhenDisconnected > 0 && health < healthWhenDisconnected);
+    }
+
+    private void disconnectPlayer(MinecraftClient client) {
+        Text reasonTitle = Text.of("AutoDisconnect");
+        Text reasonBody = Text
+                .of("Disconnected by AutoDisconnect\n\nHealth when disconnected: %s\nCooldown (in seconds): %s"
+                        .formatted(healthWhenDisconnected, cooldownInSeconds));
+
+        Screen messageScreen = new DisconnectedScreen(new TitleScreen(), reasonTitle, reasonBody);
+
+        try {
+            if (client.world != null) {
+                client.world.disconnect(reasonBody);
+                client.disconnect(messageScreen, true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            client.setScreen(new TitleScreen());
+        }
+    }
+
     private void registerDisconnectEvent() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.world == null || client.player == null || client.player.isCreative()
-                    || client.player.isSpectator() || !toggle) {
+            if (shouldSkip(client))
                 return;
-            }
 
             int health = (int) client.player.getHealth();
-            if (healthWhenDisconnected > 0 && health == 20) {
+            if (healthWhenDisconnected > 0 && health >= 20) {
+                healthWhenDisconnected = 0; // Reset if health is full
                 return;
             }
 
@@ -150,20 +185,12 @@ public class AutoDisconnect implements ClientModInitializer {
                 cooldown = 0;
                 healthWhenDisconnected = 0;
             } else if (client.player.isAlive()) {
-                if (cooldown == 0
-                        || (healthWhenDisconnected > 0 && health < healthWhenDisconnected)) {
+                if (shouldDisconnect(health)) {
                     healthWhenDisconnected = health;
                     cooldown = cooldownInSeconds * 20;
-
-                    client.player.getWorld().disconnect();
-                    client.player.networkHandler
-                            .onDisconnected(new DisconnectionInfo(Text.of(
-                                    "Disconnected by AutoDisconnect\n\nHealth when disconnected: %s\nCooldown (in seconds): %s"
-                                            .formatted(healthWhenDisconnected, cooldownInSeconds))));
-
-                } else {
-                    cooldown--;
-                }
+                    disconnectPlayer(client);
+                } else
+                    cooldown--; // decrease by one tick, run every tick
             }
         });
     }
